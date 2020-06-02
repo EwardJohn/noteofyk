@@ -62,3 +62,8 @@ grammar_cjkRuby: true
  
  1. 把空间中每个位置的激活都考虑成一个特征图，*每个卷积核的单一激活特征图是神经元选择维度空间的样本*,这个样本分布反映CNN如何解释一张输入图片；
  2. 直接匹配样本不很好，因为 忽略了空间中的样本密度；
+
+
+#### 方程
+1. **公式**：![Selectivity Transfer loss](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/202062/迁移损失函数.png)
+   
