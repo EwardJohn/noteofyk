@@ -65,5 +65,5 @@ grammar_cjkRuby: true
 
 
 #### 方程
-1. **公式**：![Selectivity Transfer loss](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/202062/迁移损失函数.png)
+1. **公式**：![selectivity transfer loss](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/202062/迁移损失函数.png)
    
