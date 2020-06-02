@@ -30,11 +30,11 @@ grammar_cjkRuby: true
 
 ##### 论文都有：（1）Model compression.（2）Distilling the knowledge in a neural network.（3）Hints for thin deep nets.（4）Paying more attention to attention:Improving the performance of convolutional neural networks via attention transfer.（5）Accelerating convolutional neural networks with dominant convolutional kernel and knowledge pre-regression.（6）Face model compression by distilling knowledge from neurons.
 
-##### 本论文的思想：（1）如果一个神经元被某些样本和区域激活，那么就说明这些区域和样本可能拥有一些与任务相关的特性；（2）本文提出teacher 和 student 模型的神经元选择模式的分布匹配，如图：![enter description here](./images/teacher-student_1.png)（3）student 网络不仅从gt学习相应的知识，而且模仿teacher 网络中介层中的激活分布
+##### 本论文的思想：（1）如果一个神经元被某些样本和区域激活，那么就说明这些区域和样本可能拥有一些与任务相关的特性；（2）本文提出teacher 和 student 模型的神经元选择模式的分布匹配，如图：![enter description here](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/202062/teacher-student.png)（3）student 网络不仅从gt学习相应的知识，而且模仿teacher 网络中介层中的激活分布
 
 #### 知识蒸馏（KD）
 
-##### （1）论文：Distilling the knowledge in a neural network.（2）从一个大的teacher model 中通过teacher model 提供的类别分布根据softmax 蒸馏出一个student model （3）知识就是teacher 网络的软化输出，提供类间和类内相似性的监督，softened label 能够将一个类别中的样本投影到一个连续的空间，这样类别内和类别间中的相似性就能够得到计算；![enter description here](./images/KD_softened-softmax.png) student network 是通过联合Softened softmax 和 一般的softmax 进行训练的（4）缺点：只能用于softmax函数并且严重依赖于类别数量。
+##### （1）论文：Distilling the knowledge in a neural network.（2）从一个大的teacher model 中通过teacher model 提供的类别分布根据softmax 蒸馏出一个student model （3）知识就是teacher 网络的软化输出，提供类间和类内相似性的监督，softened label 能够将一个类别中的样本投影到一个连续的空间，这样类别内和类别间中的相似性就能够得到计算；![enter description here](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/202062/KD_softened-softmax.png) student network 是通过联合Softened softmax 和 一般的softmax 进行训练的（4）缺点：只能用于softmax函数并且严重依赖于类别数量。
 
 ## 背景知识
 
