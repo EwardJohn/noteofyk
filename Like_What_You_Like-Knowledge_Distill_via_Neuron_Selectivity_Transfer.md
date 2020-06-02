@@ -65,5 +65,30 @@ grammar_cjkRuby: true
 
 
 #### 方程
-1. **公式**：![selectivity transfer loss](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/202062/迁移损失函数.png)
+1. **公式**:![selectivity transfer loss](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/202062/迁移损失函数.png) 最小化MMD损失就相当于将神经选择性知识从teacher转移到student
+
+2. **核的选择**：
+   1.线性核
+   2.二项式核
+   3.高斯核
+
+---
+
+## 讨论
+*这里只讨论线性核和二项式核，并表示数学之后的直觉解释，以及他们和存在方法之间的关系*
+   1. 二项式核核函数：二项式核函数将c=0用来匹配连个特征图的Gram 矩阵，矩阵G中的元素g~i,j~表示区域i和区域j之间的相似性，能够指导学生网络能够学习到更好的内部表示，增强了学生网络的监督信号。
+      
+---	  
+## 实验部分
+#### 实验细节
+1.在CIFAR数据集上面，ResNet-1001被使用做老师网络，简化版Inception-BN被用作学生网络  *在‘in5b的输出层和ResNet1001的最后一个残差块之间设置单个迁移损失函数’*
+2.在ImageNet 数据集上面，采用一个提前激活版的ResNet-101和原版本的Inception-BN作为老师网络和学生网络；
+
+#### 实验结论
+1. 提出的NST方法在KT方法中效果最好
+2. 和KD方法联合起来效果也是最好的
+
+
+#### 在pascal voc 2007目标检测任务
+*验证在分类任务中实现的分类准确性能否迁移到目标检测任务当中*
    
