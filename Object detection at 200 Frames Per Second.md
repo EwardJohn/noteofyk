@@ -35,7 +35,7 @@ grammar_cjkRuby: true
 ![F-YOLO网络结构图](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/202066/检测器的网络架构图.png)
 为了使网络结构更简单，我们限制了网络的深度，使特征图变少并且使用了3x3和1x1的滤波器核
 
-*Disstillation loss for training*:
+*Distillation loss for training*:
 从teacher 网络获得的知识以soft labels的形式被转移
 1. 在YOLO架构中，最后层特征图预测N个边框，特征图的数量就被设置成*Nx(K+5),K是类别的数量，5是边框坐标核目标的可能性值*因此在每个cell中，网络学习去预测类别可能性，边框坐标以及scores，整体的损失可以由三部分损失组成，回归损失，目标损失，分类损失
 2. 我们要是使用蒸馏的话可以直接将teacher 网络最后一层的输出作为groud_truth，损失将把教师网络的激活传递给学生网络；*这里存在一个问题：由于单阶段检测器的密集采样引入了一些问题使得直接前向运用蒸馏无效，解决办法在下面体现*
@@ -71,4 +71,6 @@ grammar_cjkRuby: true
   2.  *速度比较*：如图
     ![检测器的速度比较图](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/202066/速度比较图.png)
    
-
+ 3. *令人惊讶的是*：令人惊讶的是，对于修正的学生网络，教师检测器并没有在训练中扮演一个重要的角色，特别是在coco数据中的表现不如VOC数据集的表现；
+ 4. *未注释的数据对检测器精度的影响*：使用VOC数据集以及其注释，和COCO数据集不用其注释，两种数据混合使用，没有注释的数据使用soft-labels;
+ 5. *结论*：使用一个检测能力强的teacher网络，并使用更多的未注释数据也能提高精度；
