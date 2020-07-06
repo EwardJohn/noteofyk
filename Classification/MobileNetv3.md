@@ -36,11 +36,23 @@ grammar_cjkRuby: true
 	![enter description here](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/202076/NAS流程图.png)。
 	
 
-**H-Swish的要用**：
+**激活函数**：
    
 
- - 对于在移动设备上面使用sigmoid函数会产生昂贵的计算消耗；
- - 使用swish 替换掉ReLu，因为ReLu当输入为一个比较大的值时，输出也为一个比较大的值，会造成精度误差。但是ReLu可以在任何软硬件平台上进行计算，量化的时候消除了潜在的精度损失，使用h-swish 替换掉swish，在量化模式下大概提高15%的效率，h-swish在深层网络中更加明显。公式如下：
-        ![非线性公式](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/202076/swish和h-swish公式.png)
+ 1. 对于在移动设备上面使用sigmoid函数会产生昂贵的计算消耗；
+ 2. 使用swish 替换掉ReLu，因为ReLu当输入为一个比较大的值时，输出也为一个比较大的值，会造成精度误差。但是ReLu可以在任何软硬件平台上进行计算，量化的时候消除了潜在的精度损失，使用h-swish 替换掉swish，在量化模式下大概提高15%的效率，h-swish在深层网络中更加明显。公式如下：
+        ![非线性公式](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/202076/swish和h-swish公式.png)这里Relu6表示ReLu的最大值被限制到6，防止输入为很大的一个值输出就很会变成一个无穷尽的值。
+		这两个非线性激活函数以及其改进版本如下图所示：
+		![两种非线性曲线图](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/202076/sigmoid和swish曲线图.png)
+		
+		
+**网络结构的调整**
+   
+   在通过网络结构搜索确定网络结构之后，发现网络中最后几层和前面几层计算比较多，通过修改网络结构减少计算，提高速度。
+
+   1. 在网络平均池化层之前有一个1x1卷积层，该层的主要作用是为了获得更高维度的特征信息，但是带了很大的计算量。本文将其放在平均池化的后面，先使用平均池化将特征由7x7减小到1x1，最后再使用1x1卷积层提升特征的维度，减少了7x7=49倍的计算量。
+   2. 为了进一步减少计算量，文中直接去掉了前面的纺锤形卷积的3x3以及1x1卷积，精度没有损失，但是运行时间减少了15ms,改变后的结果如图所示：
+     
+		
 
 		  
