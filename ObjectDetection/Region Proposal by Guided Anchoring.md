@@ -42,3 +42,16 @@ grammar_cjkRuby: true
         ![位置和形状遵循的分布函数](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/2020827/guided_anchor_分布函数.png)
 	 *对于任何一张图，目标可能只存在于确定的区域*
 	 *一个目标的形状与其位置紧密相关*
+   2. 对于这个分布函数，设计了一个anchor产生模块，该模块由两个分支组成，一个分支用来进行定位目标的位置，另外一个用来生成目标形状的anchor；如下图所示：
+      ![生成anchor示意图](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/2020827/1598494273925.png)
+	  图片提取特征=>位置预测分支产生概率图指出目标可能存在的位置=>形状预测分支预测基于位置的形状=>最后由这两个分支得到anchor输出
+
+   *通过选取给定可能性阈值之上的位置处的目标，并选取该位置处最可能的形状作为anchor*
+   **由于anchor形状可以产生变化，所以不同位置的特征应该抓住不同范围内的视觉内容，因此设计了一个特征适应模块，根据anchor形状调整特征图**
+
+## Anchor 位置预测
+
+ 1. 对于特征图![enter description here](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/2020827/1598495966207.png)anchor 位置预测分支产生和输入特征图一样尺寸的概率图![enter description here](./images/1598496066761.png)，对于每一个位置的概率值P(i,j|FI),表示在特征图上面中心坐标位置为((i+0.5)s,(j+0.5)s)的概率，表示一个目标中心存在在那个位置的可能性；
+ 2. 上面提到的概率值是由一个子网络![enter description here](./images/1598496633781.png)产生的，该网络对于基本特征图使用1x1卷积获得目标分数图，然后使用**sigmoid函数**将目标分数值转换成可能值；在这里实验性地发现一层卷积层+sigmoid函数能够产生精度和效率地平衡；
+   
+   
