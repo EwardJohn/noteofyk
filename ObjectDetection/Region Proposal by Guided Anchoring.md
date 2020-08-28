@@ -94,4 +94,30 @@ fi 表示第i个位置的特征，(wi, hi)是相应的anchor形状；因为该�
   6. Anchor 形状预测任务，有两步决定形状预测：
    + 首先，需要匹配anchor到gt box；
    + 其次，预测anchor的宽和高，使得anchor能够更好的和gt box重叠；
-     
+---
+**Focal Loss**
+     目标检测算法目前分为单阶段目标检测算法、双阶段目标检测算法，单阶段检测算法速度快，精度低，双阶段检测算法精度高、速度慢，为什么单阶段检测算法的精度比不上双阶段？原因是单阶段检测算法在每张图上产生了许多边框，产生了很严重的正负样本不均衡，负样本占据了loss的大部分并且多是易分样本，使得模型的优化方向多是由这些易分样本主导，那些难分的正样本未能主导优化方向，为了解决正负样本不均衡的情况，对交叉熵函数增加调制系数，缓解易分样本对网络的优化方向的主导，使得网络更加注重难分样本；
+	 Focal Loss函数和交叉熵函数形式如下：
+	 ![enter description here](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/2020828/1598622028606.png)
+	
+*举例说明*：对于一个二分类任务，样本x1是类别1的概率为pt=0.9,样本x2是类别2的概率为pt=0.6，假设γ=1，那么样本x1的调制系数为0.1，样本x2的调制系数为0.4，那么这个调制系数就是样本对loss的贡献程度，也就是权重，那么难分样本x2的权重更大；
+      此时存在两个问题：正负样本的权重，难易分类样本的权重；
+	 ![enter description here](./images/1598625961577.png)
+
+---
+ 7. 之前使用边框回归的方式，为每个gt box分派anchor,用这个anchor回归这个gt box;但是这里不行的原因是，anchor的高和宽是一个变量，这里使用一个新的计算IOU的方法：
+     ![enter description here](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/2020828/1598626474166.png)
+	 上面的公式由于很难应用到端到端网络中去，因此使用另外一个方法去近似它：首先给anchor的坐标(x0, y0)，采样一些公共的值来估计所有的w和h,然后使用上述公式计算anchor和gt的IOU值，计算出IOU的最大值来近似上面的公式值，在实验中，采样9对（w,h），采样越多，所得到的的结果越准确；
+	8. 在训练的过程中使用bound iou loss函数优化anchor形状预测；bound iou loss公式的形式为：
+	   ![enter description here](./images/1598627065932.png)
+
+## 高品质proposals的使用
+
+
+ 1. GA-RPN是对传统RPN的增强，产生的proposals的质量更高，使用这些高质量的proposals对两阶段检测器的效果进行提升；
+ 2. 将RPN和GA-RPN生成的proposals的IOU分布进行对比，对比图如下所示：
+  ![enter description here](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/2020828/1598627426548.png)
+  3. 对比结果显示：**GA-RPN产生的正样本的候选框的数量更多**、**高IOU率的proposals数量更多**
+  4. 但是将GA-RPN直接用到之前的网络中时，会出现提升不够的问题；主要原因在于使用高品质proposals的前提条件是需要根据proposlas的分布调整训练样本的分布；
+  5. 因此，需要设置一个更高的阈值并且使用更少的采样数，在和RPN进行对比的时候；
+  6. 除了端到端训练，还发现了GA-RPNproposals能够促进训练过的两阶段检测器，给一个训练好的模型，我们扔掉RPN权值和偏置，并替换成训练好的GA-RPN部分，然后细调3个epoch，就能使得效果产生很大的提升；
