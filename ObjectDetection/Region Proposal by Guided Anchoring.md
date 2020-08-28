@@ -53,5 +53,18 @@ grammar_cjkRuby: true
 
  1. 对于特征图![enter description here](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/2020827/1598495966207.png)anchor 位置预测分支产生和输入特征图一样尺寸的概率图![enter description here](./images/1598496066761.png)，对于每一个位置的概率值P(i,j|FI),表示在特征图上面中心坐标位置为((i+0.5)s,(j+0.5)s)的概率，表示一个目标中心存在在那个位置的可能性；
  2. 上面提到的概率值是由一个子网络![enter description here](./images/1598496633781.png)产生的，该网络对于基本特征图使用1x1卷积获得目标分数图，然后使用**sigmoid函数**将目标分数值转换成可能值；在这里实验性地发现一层卷积层+sigmoid函数能够产生精度和效率地平衡；
-   
+ 3. 根据概率阈值，我们选择这些目标很可能存在的这些区域，这个过程可以过滤掉超过90%的区域，但是仍然维持相同的召回率；产生的概率图如下所示：![enter description here](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/2020828/1598583661864.png)，从图中可以看出来，天空和海洋等背景被排除在外，目标区域的概率值高于周边环境；
+    
+## Anchor 形状预测
+   1. 该分支根据上一步的位置预测，进行anchor形状预测，它与边框回归不同的地方在于：不需要改变anchor的位置，不会造成anchor和anchor特征图的对不准情况的出现；
+   2. 给一张特征图F，该分支将给为每一个位置预测最好的形状(w,h),生成该形状的指导是使生成该形状的anchor可以和ground truth 由最大的重叠区域；
+   3. **Note**:该分支的主要目标是预测anchor的宽度值w和高度值h,由于这两个值的变化范围非常大，所以直接预测这两个值可能造成训练的不稳定，所以对问题进行一次迁移变化：
+      ![形状预测变换函数](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/2020828/1598585088376.png)
+  4. 形状预测函数将输出dw和dh，这两个值然后被映射为（w,h），s为stride，σ表示实验尺度向量（实验的过程中设置为8），该非线性迁移函数将输出空间从[0,1000]映射到[-1,1]，是的训练过程变得更容易和更稳定；
+  5. 该分支网络都是由1x1卷积层组成，输出为两通道的特征图，分别表示dw和dh，最后是一个元素迁移层，用来计算anchor的形状（w,h）；
+    **本方案可以生成任意形状的anchor，anchor的形状与位置有很大的关系，使得本方案的recall高于之前提前定义的密集anchor生成**
+	
+## Anchor-Guided Feature Adaptation
+   1. 直觉：对于大的anchor，特征图应该编码一个大区域的内容，对于小的anchor,特征图应该编码小范围的内容；
+
    
