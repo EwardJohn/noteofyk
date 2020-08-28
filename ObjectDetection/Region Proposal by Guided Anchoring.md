@@ -90,3 +90,8 @@ fi 表示第i个位置的特征，(wi, hi)是相应的anchor形状；因为该�
  5. 在多目标重叠时，CR抑制IR，IR抑制OR **此处不是特别明白**，示意图如下：
      ![enter description here](./images/1598618520971.png)
 	 因为CR通常占据了整个特征图的一小部分，在训练的位置分支的过程中使用focal loss；**猜测这里使用focal loss是因为正样本相比于负样本来说只占据一小部分，所以使用focal loss来进行均衡采样**
+	 
+  6. Anchor 形状预测任务，有两步决定形状预测：
+   + 首先，需要匹配anchor到gt box；
+   + 其次，预测anchor的宽和高，使得anchor能够更好的和gt box重叠；
+     
