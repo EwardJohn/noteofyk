@@ -65,6 +65,28 @@ grammar_cjkRuby: true
     **本方案可以生成任意形状的anchor，anchor的形状与位置有很大的关系，使得本方案的recall高于之前提前定义的密集anchor生成**
 	
 ## Anchor-Guided Feature Adaptation
-   1. 直觉：对于大的anchor，特征图应该编码一个大区域的内容，对于小的anchor,特征图应该编码小范围的内容；
+   1. 直觉：对于大的anchor，特征图应该编码一个大区域的内容，对于小的anchor,特征图应该编码小范围的内容；（这里在整个特征图上面使用全卷积）；
+   2. 引入anchor指导的特征适应性模块，在 每个单独的位置根据anchor的形状变换特征，变换的公式如下：
+                          ![enter description here](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/2020828/1598597836291.png)
+fi 表示第i个位置的特征，(wi, hi)是相应的anchor形状；因为该公式表示依赖于位置的变化，所以采用3x3变形卷积来实施NT；
+    3. 首先从anchor形状预测分支的输出预测一个抵消区域，然后使用抵消区域在原来的特征图上运用变形卷积
+获得fi，然后在fi特征的上面可以运用分类和边框回归；
 
-   
+## 训练
+
+ 1. 共同的目标
+    *本框架使用多任务损失：分类损失、回归损失、anchor位置预测损失、anchor形状预测损失*，联合损失函数如下所示：
+	![enter description here](https://raw.githubusercontent.com/EwardJohn/noteofyk/master/img/2020828/1598615196126.png)
+  2. anchor 定位的目标：
+      为了训练一个anchor定位网络，对于每一张图片，使用一个二进制标签图 ，1表示该位置是一个有效位置可以放置anchor,0表示该位置几乎不存在目标，不用放置anchor；*在此过程中使用ground-truth边框指导二进制标签图生成*
+目的是在目标中心毗邻区域放置尽可能多的边框；
+ 3. 生成二进制map的步骤
+   +  *将gt边框映射到特征图尺寸大小* (xg, yg, wg, hg)=> (x'g, y'g, w'g, h'g),定义R(x, y, w, h)为中心坐标为(x, y)、尺寸为wxh的矩形区域；
+   + 希望将anchor放置到gt目标的中心附近以获得更大的初始IOU，为每个box定义了三种区域；
+   + 1 : CR = R(x‘g, y’g, σ1w‘, σ1h’)表示box的中心区域，在该区域的像素被当作正样本；
+   +  2：IR = R(x'g, y'g, σ2w', σ2h')\CR 是一个包含CR的区域 (σ2 > σ1)，在IR中间的像素在训练过程中被当成‘ignore’并被排除；
+   +  3：外部区域OR是除了IR和CR之外的区域，在OR中的像素被当成负样本；
+ 4. 使用FPN多层特征，*每层特征图应该只针对特定尺寸范围的目标*，只要特征图匹配目标物体的尺寸，我们就把CR放置到特征图上面，相邻特征层的对应位置放置IR；
+ 5. 在多目标重叠时，CR抑制IR，IR抑制OR **此处不是特别明白**，示意图如下：
+     ![enter description here](./images/1598618520971.png)
+	 因为CR通常占据了整个特征图的一小部分，在训练的位置分支的过程中使用focal loss；**猜测这里使用focal loss是因为正样本相比于负样本来说只占据一小部分，所以使用focal loss来进行均衡采样**
